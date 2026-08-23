@@ -1,3 +1,2 @@
 # Nocturne
-__________________________________________________
 Automated Reconnaissance Pipeline
