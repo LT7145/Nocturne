@@ -40,7 +40,7 @@ For now nocturne only supports web enumeration later additions will add more too
 ```bash
 nocturne <module> <target> [options]
 ```
-The target is positional. Subdomain enumeration:
+The target is positional sub and dir enumeration are the only ones available right now. Subdomain enumeration:
 ```bash
 nocturne web example.com -m sub -w wordlists/subs.txt -c 200,301,403
 ```
