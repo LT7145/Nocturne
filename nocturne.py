@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 import sys
 
-from modules import web_enumerator, art, social
+from modules import web_enumerator
+from modules import art
+
 
 VERSION = "1.1"
 
@@ -20,7 +22,6 @@ BANNER = r"""
 MODULES = {
     "web": ("web enumeration (subdomains / directories)", web_enumerator.main),
     "art": ("print the nocturne mascot", art.main),
-    "social": ("social media enumeration (instagram/reddit/twitter/facebook/telegram/mastodon)", social.main),
 }
 
 
