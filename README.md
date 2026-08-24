@@ -6,7 +6,7 @@
 
 # Nocturne
 
-Nocturne, Python-based reconnaissance toolkit for security resarch, CTFs, authorized penetration testing. Bringing multiple recon capabilities together under a single CLI, rather than seperate tools of enumeration
+Nocturne, Python-based reconnaissance toolkit for security research, CTFs, authorized penetration testing. Bringing multiple recon capabilities together under a single CLI, rather than seperate tools of enumeration
 
 # Features
 * Unified CLI for multiple recon modules (currently only web)
