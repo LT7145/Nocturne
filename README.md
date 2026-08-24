@@ -10,8 +10,6 @@ Automated Reconnaissance Pipeline
 # Notes
 Automated Recon Pipeline — Build Order
 
-A step-by-step plan for building the pipeline: individual scripts first, orchestrator second, TUI last.
-
 Phase 0 — Planning & Contracts (before writing any code)
 Define your stages. Pick a fixed set of recon phases you'll support first, e.g.:
 Subdomain enumeration
