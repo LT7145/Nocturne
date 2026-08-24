@@ -7,8 +7,10 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import requests
 import urllib3
 
-UA = "Mozilla/5.0 (compatible; Nocturne/1.0)"
+DEFAULT_UA = "Mozilla/5.0 (compatible; Nocturne/1.0)"
 
+def get_user_agent(custom=None):
+    return custom if custom else DEFAULT_UA
 
 def load_wordlist(fpath):
     try:
@@ -24,7 +26,7 @@ def load_wordlist(fpath):
 def build_session(threads, verify=True):
     # one session = reused TCP conns, way faster than a bare requests.get per word
     s = requests.Session()
-    s.headers.update({"User-Agent": UA})
+    s.headers.update({"User-Agent: get_user_agent(args.user_agent)})
     s.verify = verify
     adapter = requests.adapters.HTTPAdapter(pool_connections=threads, pool_maxsize=threads)
     s.mount("http://", adapter)
