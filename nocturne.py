@@ -11,7 +11,7 @@ BANNER = r"""
 |  \| |/ _ \ / __| __| | | | '__| '_ \ / _ \
 | |\  | (_) | (__| |_| |_| | |  | | | |  __/
 |_| \_|\___/ \___|\__|\__,_|_|  |_| |_|\___|
-             Multi-reconnissance toolkit  v: {v}
+             Multi-reconnaissance toolkit  v: {v}
 """.format(v=VERSION)
 
 
@@ -19,7 +19,7 @@ BANNER = r"""
 # add a new tool: drop it in modules/, import it above, add one line here.
 MODULES = {
     "web": ("web enumeration (subdomains / directories)", web_enumerator.main),
-    "art": ("", art.main),
+    "art": ("print the nocturne mascot", art.main),
     "social": ("social media enumeration (instagram/reddit/twitter/facebook/telegram/mastodon)", social.main),
 }
 
@@ -29,6 +29,9 @@ def print_usage():
     print("modules:")
     for name, (desc, _) in MODULES.items():
         print(f"  {name:<8} {desc}")
+    print("\noptions:")
+    print("  -h, --help     show this message")
+    print("  -V, --version  show the nocturne version")
     print("\nrun 'nocturne <module> -h' for a module's options")
 
 

@@ -9,6 +9,11 @@ import urllib3
 
 DEFAULT_UA = "Mozilla/5.0 (compatible; Nocturne/1.0)"
 
+EXAMPLES = """examples:
+  nocturne web scanme.nmap.org -m sub -w wordlists/subs.txt
+  nocturne web https://example.com -m dir -w wordlists/dirs.txt -t 25 -c 200,301,403
+"""
+
 def get_user_agent(custom=None):
     return custom if custom else DEFAULT_UA
 
@@ -16,14 +21,14 @@ def load_wordlist(fpath):
     try:
         with open(fpath, 'r', errors='ignore') as f:
             lst = [line.strip() for line in f if line.strip() and not line.startswith("#")]
-            print(f"[*] Loaded: {len(lst)}, from {fpath}")
+            print(f"[*] Loaded: {len(lst)}, from {fpath}", file=sys.stderr)
             return lst
     except FileNotFoundError:
-        print(f"[!] Error: '{fpath}' not found")
+        print(f"[!] Error: '{fpath}' not found", file=sys.stderr)
         return []
     except OSError as e:
         # a directory, a bad symlink, no read permission - same outcome, no wordlist
-        print(f"[!] Error: cannot read '{fpath}': {e.strerror}")
+        print(f"[!] Error: cannot read '{fpath}': {e.strerror}", file=sys.stderr)
         return []
 
 
@@ -82,7 +87,7 @@ def run_scan(fn, wordlist, threads, codes=None):
                 print(f"[+] Obtained: {code} Url: {url}{extra}")
                 found.append((url, code))
         except KeyboardInterrupt:
-            print("\n[!] Interrupted - cancelling remaining work")
+            print("\n[!] Interrupted - cancelling remaining work", file=sys.stderr)
             ex.shutdown(wait=False, cancel_futures=True)
     return found
 
@@ -90,7 +95,7 @@ def run_scan(fn, wordlist, threads, codes=None):
 def enumerate_subdom(domain, wordlist, scheme="https", threads=10, timeout=3, verify=True, codes=None,
                      user_agent=None):
     scheme, domain = split_scheme(domain, scheme)
-    print(f"[*] Mode: subdomain enumeration - target: {scheme}://{domain}\n")
+    print(f"[*] Mode: subdomain enumeration - target: {scheme}://{domain}\n", file=sys.stderr)
     session = build_session(threads, verify, user_agent)
     fn = partial(checking_subdomains, session=session, domain=domain, scheme=scheme, timeout=timeout)
     return run_scan(fn, wordlist, threads, codes)
@@ -100,7 +105,7 @@ def enumerate_dirs(target, wordlist, scheme="https", threads=10, timeout=3, veri
                    user_agent=None):
     scheme, host = split_scheme(target, scheme)
     base = f"{scheme}://{host}"
-    print(f"[*] Mode: directory enumeration - target: {base}\n")
+    print(f"[*] Mode: directory enumeration - target: {base}\n", file=sys.stderr)
     session = build_session(threads, verify, user_agent)
     fn = partial(checking_paths, session=session, base=base, timeout=timeout)
     return run_scan(fn, wordlist, threads, codes)
@@ -112,7 +117,7 @@ def parse_codes(raw):
     try:
         return {int(c) for c in raw.split(",") if c.strip()}
     except ValueError:
-        print(f"[!] Error: bad status filter '{raw}'")
+        print(f"[!] Error: bad status filter '{raw}'", file=sys.stderr)
         sys.exit(1)
 
 
@@ -120,8 +125,9 @@ def parse_codes(raw):
 # nocturne.py passes the args after "web" as a list instead.
 def main(argv=None):
     p = argparse.ArgumentParser(prog="nocturne web",
-                                description="web enumeration (subdomains / directories)")
-    p.add_argument("Example Command: nocturne web scanme.nmap.org -m sub -w wordlist")
+                                description="web enumeration (subdomains / directories)",
+                                epilog=EXAMPLES,
+                                formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("target", help="domain or url, e.g. example.com or https://example.com")
     p.add_argument("-w", "--wordlist", required=True, help="path to wordlist")
     p.add_argument("-m", "--mode", choices=["sub", "dir"], default="sub", help="enumeration mode")
@@ -145,13 +151,13 @@ def main(argv=None):
     found = runner(args.target, wordlist, threads=args.threads, timeout=args.timeout,
                    verify=not args.insecure, codes=codes, user_agent=args.user_agent)
 
-    print(f"\n[*] Done - {len(found)} hit(s)")
+    print(f"\n[*] Done - {len(found)} hit(s)", file=sys.stderr)
 
     if args.output:
         with open(args.output, "w") as f:
             for url, code in sorted(found):
                 f.write(f"{code} {url}\n")
-        print(f"[*] Written to {args.output}")
+        print(f"[*] Written to {args.output}", file=sys.stderr)
 
 
 if __name__ == "__main__":
