@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 import sys
 
-from modules import web_enumerator
+from modules import web_enumerator, art, social
 
-VERSION = "1.0"
+VERSION = "1.1"
 
 BANNER = r"""
  _   _            _
@@ -11,13 +11,16 @@ BANNER = r"""
 |  \| |/ _ \ / __| __| | | | '__| '_ \ / _ \
 | |\  | (_) | (__| |_| |_| | |  | | | |  __/
 |_| \_|\___/ \___|\__|\__,_|_|  |_| |_|\___|
-             recon toolkit  v: {v}
+             Multi-reconnissance toolkit  v: {v}
 """.format(v=VERSION)
+
 
 # module name -> (help text, handler that takes the remaining argv list)
 # add a new tool: drop it in modules/, import it above, add one line here.
 MODULES = {
     "web": ("web enumeration (subdomains / directories)", web_enumerator.main),
+    "art": ("", art.main),
+    "social": ("social media enumeration (instagram/reddit/twitter/facebook/telegram/mastodon)", social.main),
 }
 
 
