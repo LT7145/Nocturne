@@ -53,25 +53,29 @@ def split_scheme(target, scheme="https"):
     return scheme, target.strip("/")
 
 
-def checking_subdomains(sub, session, domain, scheme="https", timeout=3):
+def checking_subdomains(sub, session, domain, scheme="https", timeout=3, verbose=False):
     url = f"{scheme}://{sub}.{domain}"
     try:
         r = session.get(url, timeout=timeout, allow_redirects=False)
         return (url, r.status_code, r.headers.get("Location"))
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        if verbose:
+            print(f"[x] Error: {url} -> {e}", file=sys.stderr)
         return None
 
 
-def checking_paths(word, session, base, timeout=3):
+def checking_paths(word, session, base, timeout=3, verbose=False):
     url = f"{base}/{word.lstrip('/')}"
     try:
         r = session.get(url, timeout=timeout, allow_redirects=False)
         return (url, r.status_code, r.headers.get("Location"))
-    except requests.exceptions.RequestException:
+    except requests.exceptions.RequestException as e:
+        if verbose:
+            print(f"[x] Error: {url} -> {e}", file=sys.stderr)
         return None
 
 
-def run_scan(fn, wordlist, threads, codes=None):
+def run_scan(fn, wordlist, threads, codes=None, verbose=False):
     found = []
     with ThreadPoolExecutor(max_workers=threads) as ex:
         futures = {ex.submit(fn, word): word for word in wordlist}
@@ -81,9 +85,11 @@ def run_scan(fn, wordlist, threads, codes=None):
                 if not result:
                     continue
                 url, code, loc = result
-                if codes and code not in codes:
-                    continue
                 extra = f" -> {loc}" if loc else ""
+                if codes and code not in codes:
+                    if verbose:
+                        print(f"[.] Filtered: {code} Url: {url}{extra}", file=sys.stderr)
+                    continue
                 print(f"[+] Obtained: {code} Url: {url}{extra}")
                 found.append((url, code))
         except KeyboardInterrupt:
@@ -93,22 +99,23 @@ def run_scan(fn, wordlist, threads, codes=None):
 
 
 def enumerate_subdom(domain, wordlist, scheme="https", threads=10, timeout=3, verify=True, codes=None,
-                     user_agent=None):
+                     user_agent=None, verbose=False):
     scheme, domain = split_scheme(domain, scheme)
     print(f"[*] Mode: subdomain enumeration - target: {scheme}://{domain}\n", file=sys.stderr)
     session = build_session(threads, verify, user_agent)
-    fn = partial(checking_subdomains, session=session, domain=domain, scheme=scheme, timeout=timeout)
-    return run_scan(fn, wordlist, threads, codes)
+    fn = partial(checking_subdomains, session=session, domain=domain, scheme=scheme, timeout=timeout,
+                verbose=verbose)
+    return run_scan(fn, wordlist, threads, codes, verbose)
 
 
 def enumerate_dirs(target, wordlist, scheme="https", threads=10, timeout=3, verify=True, codes=None,
-                   user_agent=None):
+                   user_agent=None, verbose=False):
     scheme, host = split_scheme(target, scheme)
     base = f"{scheme}://{host}"
     print(f"[*] Mode: directory enumeration - target: {base}\n", file=sys.stderr)
     session = build_session(threads, verify, user_agent)
-    fn = partial(checking_paths, session=session, base=base, timeout=timeout)
-    return run_scan(fn, wordlist, threads, codes)
+    fn = partial(checking_paths, session=session, base=base, timeout=timeout, verbose=verbose)
+    return run_scan(fn, wordlist, threads, codes, verbose)
 
 
 def parse_codes(raw):
@@ -137,6 +144,8 @@ def main(argv=None):
     p.add_argument("-k", "--insecure", action="store_true", help="skip TLS verification (lab / self-signed)")
     p.add_argument("-A", "--user-agent", help=f"custom User-Agent (default: {DEFAULT_UA})")
     p.add_argument("-o", "--output", help="write found urls to file")
+    p.add_argument("-v", "--verbose", action="store_true",
+                  help="show filtered-out status codes and connection errors too")
     args = p.parse_args(argv)
 
     if args.insecure:
@@ -149,7 +158,8 @@ def main(argv=None):
     codes = parse_codes(args.codes)
     runner = enumerate_subdom if args.mode == "sub" else enumerate_dirs
     found = runner(args.target, wordlist, threads=args.threads, timeout=args.timeout,
-                   verify=not args.insecure, codes=codes, user_agent=args.user_agent)
+                   verify=not args.insecure, codes=codes, user_agent=args.user_agent,
+                   verbose=args.verbose)
 
     print(f"\n[*] Done - {len(found)} hit(s)", file=sys.stderr)
 
