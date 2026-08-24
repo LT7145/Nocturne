@@ -9,13 +9,13 @@
 Nocturne, Python-based reconnaissance toolkit for security resarch, CTFs, authorized penetration testing. Bringing multiple recon capabilities together under a single CLI, rather than seperate tools of enumeration
 
 # Features
-\. Unified CLI for multiple recon modules (currently only web)
-\. Fast, configurable, and scriptable for automation
-\. Built for CTF and security research use cases
+* Unified CLI for multiple recon modules (currently only web)
+*  Fast, configurable, and scriptable for automation
+*  Built for CTF and security research use cases
 
 # Requirements
-\. Python 3.8+
-\. pip
+* Python 3.8+
+* pip
 
 # Installation
 
