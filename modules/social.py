@@ -1,9 +1,9 @@
 """
 social.py — nocturne social-media enumeration dispatcher.
 
-The platform modules (instagram, reddit, twitter, facebook, telegram, mastodon)
-are snscrape scraper libraries. They don't expose a main(); instead each defines
-one or more Scraper subclasses that share a common interface:
+The platform scrapers come from snscrape (https://github.com/JustAnotherArchivist/snscrape),
+installed as a dependency — see requirements.txt. snscrape doesn't expose a main();
+instead each of its modules defines Scraper subclasses sharing a common interface:
 
     scraper = SomeScraper(target)
     for item in scraper.get_items():
@@ -11,6 +11,9 @@ one or more Scraper subclasses that share a common interface:
 
 This module maps a friendly "<platform> <mode>" CLI onto those classes, runs the
 scraper, and streams results to stdout (so `-o file` / piping stays clean).
+
+snscrape is imported lazily, only once a platform is actually selected, so the rest of
+nocturne keeps working when it isn't installed.
 
 Usage:
     nocturne social <platform> [mode] <target> [--limit N] [--entity]
@@ -27,42 +30,42 @@ Examples:
     nocturne social --list                          # show platforms/modes
 """
 
+import importlib
 import sys
 
-from modules import instagram, reddit, twitter, facebook, telegram, mastodon
 
-
-# platform -> { mode: (ScraperClass, "help blurb") }
-# The first mode listed for each platform is its default.
+# platform -> { mode: ("ScraperClassName", "help blurb") }
+# Class names are strings, resolved against snscrape.modules.<platform> at dispatch
+# time — see _resolve(). Keeps this table importable without snscrape present.
 REGISTRY = {
     "instagram": {
-        "user":     (instagram.InstagramUserScraper,     "posts from a username (no leading @)"),
-        "hashtag":  (instagram.InstagramHashtagScraper,  "posts for a hashtag (no leading #)"),
-        "location": (instagram.InstagramLocationScraper, "posts for a numeric location ID"),
+        "user":     ("InstagramUserScraper",     "posts from a username (no leading @)"),
+        "hashtag":  ("InstagramHashtagScraper",  "posts for a hashtag (no leading #)"),
+        "location": ("InstagramLocationScraper", "posts for a numeric location ID"),
     },
     "reddit": {
-        "user":       (reddit.RedditUserScraper,       "submissions + comments by a user"),
-        "subreddit":  (reddit.RedditSubredditScraper,  "submissions + comments in a subreddit"),
-        "search":     (reddit.RedditSearchScraper,     "submissions + comments matching a query"),
-        "submission": (reddit.RedditSubmissionScraper, "a single submission by ID + its comments"),
+        "user":       ("RedditUserScraper",       "submissions + comments by a user"),
+        "subreddit":  ("RedditSubredditScraper",  "submissions + comments in a subreddit"),
+        "search":     ("RedditSearchScraper",     "submissions + comments matching a query"),
+        "submission": ("RedditSubmissionScraper", "a single submission by ID + its comments"),
     },
     "twitter": {
-        "user":     (twitter.TwitterUserScraper,     "tweets from a username (no leading @)"),
-        "profile":  (twitter.TwitterProfileScraper,  "tweets + replies from a profile"),
-        "search":   (twitter.TwitterSearchScraper,   "tweets matching a search query"),
-        "hashtag":  (twitter.TwitterHashtagScraper,  "tweets for a hashtag (no leading #)"),
+        "user":     ("TwitterUserScraper",     "tweets from a username (no leading @)"),
+        "profile":  ("TwitterProfileScraper",  "tweets + replies from a profile"),
+        "search":   ("TwitterSearchScraper",   "tweets matching a search query"),
+        "hashtag":  ("TwitterHashtagScraper",  "tweets for a hashtag (no leading #)"),
     },
     "facebook": {
-        "user":      (facebook.FacebookUserScraper,      "posts from a user/page"),
-        "community": (facebook.FacebookCommunityScraper, "posts from a community"),
-        "group":     (facebook.FacebookGroupScraper,     "posts from a group ID"),
+        "user":      ("FacebookUserScraper",      "posts from a user/page"),
+        "community": ("FacebookCommunityScraper", "posts from a community"),
+        "group":     ("FacebookGroupScraper",     "posts from a group ID"),
     },
     "telegram": {
-        "channel": (telegram.TelegramChannelScraper, "posts from a public channel"),
+        "channel": ("TelegramChannelScraper", "posts from a public channel"),
     },
     "mastodon": {
-        "profile": (mastodon.MastodonProfileScraper, "toots from @user@instance or a profile URL"),
-        "toot":    (mastodon.MastodonTootScraper,    "a single toot by URL"),
+        "profile": ("MastodonProfileScraper", "toots from @user@instance or a profile URL"),
+        "toot":    ("MastodonTootScraper",    "a single toot by URL"),
     },
 }
 
@@ -77,6 +80,8 @@ DEFAULT_MODE = {
     "mastodon": "profile",
 }
 
+HELP_FLAGS = ("-h", "--help", "--list")
+
 
 def _print_usage():
     print("usage: nocturne social <platform> [mode] <target> [--limit N] [--entity]\n")
@@ -87,11 +92,32 @@ def _print_usage():
         for mode, (_cls, blurb) in modes.items():
             tag = "  (default)" if mode == default else ""
             print(f"      {mode:<11} {blurb}{tag}")
+    print("\noptions:")
+    print("  --limit N, -n N   stop after N results")
+    print("  --entity          print the profile/channel summary instead of the feed")
     print("\nexamples:")
     print("  nocturne social instagram user natgeo")
     print("  nocturne social reddit subreddit netsec --limit 50")
     print("  nocturne social telegram durov")
     print("  nocturne social mastodon profile @Gargron@mastodon.social")
+
+
+def _resolve(platform, class_name):
+    """Import snscrape.modules.<platform> and pull out the named scraper class."""
+    try:
+        module = importlib.import_module(f"snscrape.modules.{platform}")
+    except ImportError as e:
+        raise ImportError(
+            f"the social module needs snscrape ({e}); "
+            "install it with: pip install -r requirements.txt"
+        ) from e
+    try:
+        return getattr(module, class_name)
+    except AttributeError as e:
+        raise ImportError(
+            f"snscrape has no {class_name} for '{platform}'; "
+            "your installed version may not match requirements.txt"
+        ) from e
 
 
 def _parse_flags(rest):
@@ -125,6 +151,8 @@ def _run(scraper_cls, target, opts):
     # --entity prints the profile/channel summary object instead of the feed,
     # for scrapers that support it (Instagram user, Telegram channel, etc.).
     if opts["entity"]:
+        if opts["limit"] is not None:
+            print("[!] --limit has no effect with --entity", file=sys.stderr)
         entity = scraper.entity  # snscrape.base.Scraper exposes this property
         if entity is None:
             print("[!] no entity info available for this target", file=sys.stderr)
@@ -147,7 +175,7 @@ def _run(scraper_cls, target, opts):
 
 
 def main(argv):
-    if not argv or argv[0] in ("-h", "--help", "--list"):
+    if not argv or argv[0] in HELP_FLAGS:
         _print_usage()
         return
 
@@ -159,6 +187,12 @@ def main(argv):
 
     rest = argv[1:]
     modes = REGISTRY[platform]
+
+    # nocturne's own usage points people at "nocturne <module> -h", so honour a help
+    # flag anywhere in the tail rather than scraping a target literally named "-h".
+    if any(arg in HELP_FLAGS for arg in rest):
+        _print_usage()
+        return
 
     # Second token is a mode only if it matches one; otherwise it's the target
     # and we fall back to the platform default (so `social telegram durov` works).
@@ -180,7 +214,13 @@ def main(argv):
         sys.exit(1)
 
     target = positional[0]
-    scraper_cls, _blurb = modes[mode]
+    class_name, _blurb = modes[mode]
+
+    try:
+        scraper_cls = _resolve(platform, class_name)
+    except ImportError as e:
+        print(f"[!] {e}", file=sys.stderr)
+        sys.exit(1)
 
     try:
         _run(scraper_cls, target, opts)

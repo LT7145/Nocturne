@@ -2,3 +2,6 @@
 # install:  pip install -r requirements.txt
 requests>=2.31.0
 urllib3>=2.0.0
+
+# social module only - pulls in requests[socks], lxml, beautifulsoup4, filelock
+snscrape==0.7.0.20230622
