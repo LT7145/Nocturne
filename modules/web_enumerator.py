@@ -121,6 +121,7 @@ def parse_codes(raw):
 def main(argv=None):
     p = argparse.ArgumentParser(prog="nocturne web",
                                 description="web enumeration (subdomains / directories)")
+    p.add_argument("Example Command: nocturne web scanme.nmap.org -m sub -w wordlist")
     p.add_argument("target", help="domain or url, e.g. example.com or https://example.com")
     p.add_argument("-w", "--wordlist", required=True, help="path to wordlist")
     p.add_argument("-m", "--mode", choices=["sub", "dir"], default="sub", help="enumeration mode")
