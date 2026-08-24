@@ -26,7 +26,7 @@ def load_wordlist(fpath):
 def build_session(threads, verify=True):
     # one session = reused TCP conns, way faster than a bare requests.get per word
     s = requests.Session()
-    s.headers.update({"User-Agent: get_user_agent(args.user_agent)})
+    s.headers.update({"User-Agent": get_user_agent(args.user_agent)})
     s.verify = verify
     adapter = requests.adapters.HTTPAdapter(pool_connections=threads, pool_maxsize=threads)
     s.mount("http://", adapter)
