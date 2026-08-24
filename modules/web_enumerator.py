@@ -21,12 +21,16 @@ def load_wordlist(fpath):
     except FileNotFoundError:
         print(f"[!] Error: '{fpath}' not found")
         return []
+    except OSError as e:
+        # a directory, a bad symlink, no read permission - same outcome, no wordlist
+        print(f"[!] Error: cannot read '{fpath}': {e.strerror}")
+        return []
 
 
-def build_session(threads, verify=True):
+def build_session(threads, verify=True, user_agent=None):
     # one session = reused TCP conns, way faster than a bare requests.get per word
     s = requests.Session()
-    s.headers.update({"User-Agent": get_user_agent(args.user_agent)})
+    s.headers.update({"User-Agent": get_user_agent(user_agent)})
     s.verify = verify
     adapter = requests.adapters.HTTPAdapter(pool_connections=threads, pool_maxsize=threads)
     s.mount("http://", adapter)
@@ -83,19 +87,21 @@ def run_scan(fn, wordlist, threads, codes=None):
     return found
 
 
-def enumerate_subdom(domain, wordlist, scheme="https", threads=10, timeout=3, verify=True, codes=None):
+def enumerate_subdom(domain, wordlist, scheme="https", threads=10, timeout=3, verify=True, codes=None,
+                     user_agent=None):
     scheme, domain = split_scheme(domain, scheme)
     print(f"[*] Mode: subdomain enumeration - target: {scheme}://{domain}\n")
-    session = build_session(threads, verify)
+    session = build_session(threads, verify, user_agent)
     fn = partial(checking_subdomains, session=session, domain=domain, scheme=scheme, timeout=timeout)
     return run_scan(fn, wordlist, threads, codes)
 
 
-def enumerate_dirs(target, wordlist, scheme="https", threads=10, timeout=3, verify=True, codes=None):
+def enumerate_dirs(target, wordlist, scheme="https", threads=10, timeout=3, verify=True, codes=None,
+                   user_agent=None):
     scheme, host = split_scheme(target, scheme)
     base = f"{scheme}://{host}"
     print(f"[*] Mode: directory enumeration - target: {base}\n")
-    session = build_session(threads, verify)
+    session = build_session(threads, verify, user_agent)
     fn = partial(checking_paths, session=session, base=base, timeout=timeout)
     return run_scan(fn, wordlist, threads, codes)
 
@@ -122,6 +128,7 @@ def main(argv=None):
     p.add_argument("--timeout", type=float, default=3, help="per-request timeout in seconds")
     p.add_argument("-c", "--codes", default="all", help="status codes to show, e.g. 200,301,403 or 'all'")
     p.add_argument("-k", "--insecure", action="store_true", help="skip TLS verification (lab / self-signed)")
+    p.add_argument("-A", "--user-agent", help=f"custom User-Agent (default: {DEFAULT_UA})")
     p.add_argument("-o", "--output", help="write found urls to file")
     args = p.parse_args(argv)
 
@@ -135,7 +142,7 @@ def main(argv=None):
     codes = parse_codes(args.codes)
     runner = enumerate_subdom if args.mode == "sub" else enumerate_dirs
     found = runner(args.target, wordlist, threads=args.threads, timeout=args.timeout,
-                   verify=not args.insecure, codes=codes)
+                   verify=not args.insecure, codes=codes, user_agent=args.user_agent)
 
     print(f"\n[*] Done - {len(found)} hit(s)")
 

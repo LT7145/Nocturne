@@ -38,8 +38,17 @@ nocturne --help
 # Usage
 For now nocturne only supports web enumeration later additions will add more tools.
 ```bash
-nocturne <module> -u <target> [options]
+nocturne <module> <target> [options]
 ```
+The target is positional. Subdomain enumeration:
+```bash
+nocturne web example.com -m sub -w wordlists/subs.txt -c 200,301,403
+```
+Directory enumeration:
+```bash
+nocturne web https://example.com -m dir -w wordlists/dirs.txt -t 25 -o found.txt
+```
+Run `nocturne web -h` for the full option list.
 
 # Contributing 
 Issues and pull requests are welcomed. Please open an issue to discuss changes before submitting PR
