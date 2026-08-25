@@ -61,9 +61,6 @@ python3 nocturne.py art
 # Contributing 
 Issues and pull requests are welcomed. Please open an issue to discuss changes before submitting PR
 
-# Disclaimer
-Nocturne is intended for authorized security testing and educational purposes. Please do not use it against systems you do not own or have explicit permission to test
-
 # License
 MIT - see [LICENSE](LICENSE).
 
