@@ -18,6 +18,7 @@ SHODAN_CVEDB   = "https://cvedb.shodan.io/cves"      # free, no key, CPE-based
 KEV_CATALOG_URL= "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 NVD_API_KEY    = None              # set to bump rate limit ~5 -> ~50 per 30s
 RATE_DELAY     = 6.0               # seconds between unauthenticated NVD calls
+CISA_DATABASE  = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 USER_AGENT     = "Nocturne-CVEScanner/1.0"
 
 
