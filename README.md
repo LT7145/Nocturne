@@ -63,7 +63,3 @@ Issues and pull requests are welcomed. Please open an issue to discuss changes b
 
 # License
 MIT - see [LICENSE](LICENSE).
-
-The `social` module depends on [snscrape](https://github.com/JustAnotherArchivist/snscrape),
-which is licensed separately under the GPL-3.0. It is installed as a dependency, not
-bundled with this repository.
