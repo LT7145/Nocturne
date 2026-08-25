@@ -53,13 +53,8 @@ Directory enumeration:
 python3 nocturne.py web https://example.com -m dir -w wordlists/dirs.txt -t 25 -o found.txt
 ```
 
-## art
-```bash
-python3 nocturne.py art
-```
-
 # Contributing 
 Issues and pull requests are welcomed. Please open an issue to discuss changes before submitting PR
 
 # License
-MIT - see [LICENSE](LICENSE).
+MIT
