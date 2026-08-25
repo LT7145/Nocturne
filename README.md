@@ -53,24 +53,6 @@ Directory enumeration:
 python3 nocturne.py web https://example.com -m dir -w wordlists/dirs.txt -t 25 -o found.txt
 ```
 
-## social - social media enumeration
-Wraps the [snscrape](https://github.com/JustAnotherArchivist/snscrape) scrapers behind a
-`<platform> [mode] <target>` CLI. The mode is optional and falls back to the platform default:
-```bash
-python3 nocturne.py social --list                    # all platforms and modes
-python3 nocturne.py social instagram user natgeo
-python3 nocturne.py social reddit subreddit netsec --limit 50
-python3 nocturne.py social telegram durov            # 'channel' is the default mode
-python3 nocturne.py social mastodon profile @Gargron@mastodon.social
-python3 nocturne.py social twitter user jack --entity
-```
-`--limit N` stops after N results; `--entity` prints the profile/channel summary instead of
-the feed.
-
-> **Note:** snscrape is no longer maintained and the platforms it targets actively block
-> scraping, so several of these scrapers may fail against live targets. Nocturne reports
-> such failures as `[!] <platform> <mode> failed: ...` and exits non-zero.
-
 ## art
 ```bash
 python3 nocturne.py art
