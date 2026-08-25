@@ -32,7 +32,7 @@ def load_wordlist(fpath):
         return []
 
 
-def build_session(threads, verify=True, user_agent=None):
+def b_session(threads, verify=True, user_agent=None):
     # one session = reused TCP conns, way faster than a bare requests.get per word
     s = requests.Session()
     s.headers.update({"User-Agent": get_user_agent(user_agent)})
@@ -102,7 +102,7 @@ def enumerate_subdom(domain, wordlist, scheme="https", threads=10, timeout=3, ve
                      user_agent=None, verbose=False):
     scheme, domain = split_scheme(domain, scheme)
     print(f"[*] Mode: subdomain enumeration - target: {scheme}://{domain}\n", file=sys.stderr)
-    session = build_session(threads, verify, user_agent)
+    session = b_session(threads, verify, user_agent)
     fn = partial(checking_subdomains, session=session, domain=domain, scheme=scheme, timeout=timeout,
                 verbose=verbose)
     return run_scan(fn, wordlist, threads, codes, verbose)
@@ -113,7 +113,7 @@ def enumerate_dirs(target, wordlist, scheme="https", threads=10, timeout=3, veri
     scheme, host = split_scheme(target, scheme)
     base = f"{scheme}://{host}"
     print(f"[*] Mode: directory enumeration - target: {base}\n", file=sys.stderr)
-    session = build_session(threads, verify, user_agent)
+    session = b_session(threads, verify, user_agent)
     fn = partial(checking_paths, session=session, base=base, timeout=timeout, verbose=verbose)
     return run_scan(fn, wordlist, threads, codes, verbose)
 
