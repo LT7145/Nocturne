@@ -78,6 +78,33 @@ class CVEResult:
             ref = refs,
             )
 
+        @dataclass
+        class ExploitIntel:
+        cve_id: str
+        in_cisa_kev: bool = False
+        kev_ransomware: Optional[str] = None  # KEV notes if it's tied to ransomware
+        kev_date_added: Optional[str] = None
+        nvd_exploit_refs: list[str] = field(default_factory=list)  # NVD-tagged "Exploit"
+        other_refs: list[str] = field(default_factory=list)
+        search_urls: dict[str, str] = field(default_factory=dict) 
+
+        @property 
+        def priority(self) -> str:
+            if self.in_cisa_kev:
+                return "CISA stuff: "
+            if self.nvd_exploit_refs:
+                return "exploits referenced by NVD: "
+            return "No confirmed exploit"
+
+        def search_urls(cve_id: str) -> dict[str, str]:
+            q = quote(cve_id)
+            return {
+                    "exploit_db": f"https://www.exploit-db.com/search?cve={q}"
+                    "github": f"https://github.com/search?cve={q}"
+                    "nuclei": f"https://github.com/search?q={q}%type"
+                    "metasploit": f"exploit-db.com/search?cve={q}" 
+                    "rapid7": f"rapid7.com/db/?page={q}"
+                    }
 
 if __init__ == "__main__": 
     main()
