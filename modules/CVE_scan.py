@@ -158,7 +158,7 @@ def fetch_nvd(keyword: Optional[str] = None,
     return [CVEResult.nvd_json(item) for item in resp.json().get("vulnerabilities", [])]
 
 
-def main() -> int:
+def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description="Nocturne CVE scanner")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-k", "--keyword", help="keyword search, e.g. 'apache struts'")
@@ -197,4 +197,4 @@ def main() -> int:
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main()
