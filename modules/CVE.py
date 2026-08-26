@@ -133,6 +133,7 @@ class ExploitIntel:
 
 
 def fetch_cisa_kev() -> dict:
+
     resp = requests.get(CISA_DATABASE, headers=HEADERS, timeout=25)
     resp.raise_for_status()
     catalog = resp.json().get("vulnerabilities", [])
@@ -140,8 +141,10 @@ def fetch_cisa_kev() -> dict:
 
 
 def fetch_nvd(keyword: Optional[str] = None,
-              cve_id: Optional[str] = None,
-              limit: int = 20) -> list[CVEResult]:
+
+    cve_id: Optional[str] = None,
+    limit: int = 20) -> list[CVEResult]:
+
     params: dict[str, object] = {"resultsPerPage": limit}
     if cve_id:
         params["cveId"] = cve_id
@@ -191,10 +194,10 @@ def main(argv=None) -> int:
         print(f"\n{r.cve_id}  [{r.severity or 'N/A'} {r.cvss_score or ''}]")
         print(f"  {i.priority}")
         if i.kev_date_added:
-            print(f"  KEV added: {i.kev_date_added}  ransomware: {i.kev_ransomware}")
+            print(f"KEV added: {i.kev_date_added}  ransomware: {i.kev_ransomware}")
         print(f"  {r.description[:200]}")
         for url in i.nvd_exploit_refs[:3]:
-            print(f"  exploit: {url}")
+            print(f"exploit: {url}")
     return 0
 
 
