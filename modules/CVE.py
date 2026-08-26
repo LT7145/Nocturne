@@ -9,7 +9,7 @@ from dataclasses import dataclass, field
 from datetime import datetime
 from typing import Optional
 from urllib.parse import quote, urljoin, urlparse
-
+# I barely used some of these
 import mmh3
 import requests
 from bs4 import BeautifulSoup
@@ -17,13 +17,12 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# Constants
 NVD_API_BASE  = "https://services.nvd.nist.gov/rest/json/cves/2.0"
 SHODAN_CVEDB  = "https://cvedb.shodan.io/cves"
 CISA_DATABASE = "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json"
 NVD_API_KEY   = os.getenv("CVE_API")
-RATE_DELAY    = 6.0 if not NVD_API_KEY else 0.7
-USER_AGENT    = "Nocturne-CVEScanner/1.0"
+RATE_DELAY    = 6.0 
+USER_AGENT    = "Nocturne-CVEScanner/1.1"
 
 HEADERS = {"User-Agent": USER_AGENT}
 if NVD_API_KEY:
@@ -152,26 +151,29 @@ def fetch_nvd(keyword: Optional[str] = None,
         raise ValueError("need either keyword or cve_id")
 
     resp = requests.get(NVD_API_BASE, params=params, headers=HEADERS, timeout=30)
-    resp.raise_for_status()
     time.sleep(RATE_DELAY)
 
+    if resp.status_code >= 400: # goooood request :)
+        reason = resp.headers.get("message", "no message header")
+        raise RuntimeError(f"NVD {resp.status_code}: {reason}")
+    
     return [CVEResult.nvd_json(item) for item in resp.json().get("vulnerabilities", [])]
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(description="Nocturne CVE scanner")
+    parser = argparse.ArgumentParser(prog="Nocturne CVE", description="Nocturne CVE scanner")
     group = parser.add_mutually_exclusive_group(required=True)
     group.add_argument("-k", "--keyword", help="keyword search, e.g. 'apache struts'")
     group.add_argument("-c", "--cve", help="specific CVE ID, e.g. CVE-2024-3094")
     parser.add_argument("-n", "--limit", type=int, default=20, help="max results")
     parser.add_argument("--json", action="store_true", help="output raw JSON")
-    args = parser.parse_args()
+    args = parser.parse_args(argv)
 
     try:
         results = fetch_nvd(keyword=args.keyword, cve_id=args.cve, limit=args.limit)
         kev = fetch_cisa_kev()
-    except requests.RequestException as exc:
-        print(f"[!] request failed: {exc}", file=sys.stderr)
+    except (requests.RequestException, RuntimeError) as exc:
+        print(f"[!] {exc}", file=sys.stderr)
         return 1
 
     intel = [ExploitIntel.build(r, kev) for r in results]
@@ -197,4 +199,4 @@ def main(argv=None) -> int:
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())
