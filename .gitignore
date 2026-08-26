@@ -6,3 +6,5 @@ venv/
 
 # scan output
 found.txt
+env
+.env

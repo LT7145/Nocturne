@@ -3,7 +3,7 @@ import sys
 
 from modules import web_enumerator
 from modules import art
-
+from modules import CVE_scan
 
 VERSION = "1.1"
 
@@ -22,6 +22,7 @@ BANNER = r"""
 MODULES = {
     "web": ("web enumeration (subdomains / directories)", web_enumerator.main),
     "art": ("print the nocturne mascot", art.main),
+    "CVEscan": ("Scan CVE for vulnerabilities", CVE_scan.main),
 }
 
 
