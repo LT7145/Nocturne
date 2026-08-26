@@ -52,6 +52,21 @@ Directory enumeration:
 ```bash
 python3 nocturne.py web https://example.com -m dir -w wordlists/dirs.txt -t 25 -o found.txt
 ```
+# CVE Scanner
+Usage of the CVE Scanner is limited for now but will be updated in the future. Features include
+```bash
+python3 nocturne.py -c <CVE>
+```
+Limiting Amount
+```bash
+python3 nocturne.py -n <LIMIT> 
+```
+Raw Json
+```bash
+python3 nocturne.py -c <CVE> --json
+```
+Pretty useless for now 
+
 
 # Contributing 
 Issues and pull requests are welcomed. Please open an issue to discuss changes before submitting PR
