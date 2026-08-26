@@ -106,5 +106,10 @@ class CVEResult:
                     "rapid7": f"rapid7.com/db/?page={q}"
                     }
 
+        def fetch_cisa_key() -> dict:
+            
+
+        def discover_exploits() 
+
 if __init__ == "__main__": 
     main()
