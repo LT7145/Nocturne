@@ -67,6 +67,8 @@ python3 nocturne.py -c <CVE> --json
 ```
 Pretty useless for now 
 
+# Usage
+This software should only be used for educational or legal pen-testing services.
 
 # Contributing 
 Issues and pull requests are welcomed. Please open an issue to discuss changes before submitting PR
