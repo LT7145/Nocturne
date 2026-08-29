@@ -4,10 +4,12 @@ import sys
 import argparse
 from bs4 import BeautifulSoup
 
-def harvester(url): 
-    url = requests.get(url)
-    soup = BeautifulSoup(url.content, 'html.parser')
-    soup = soup.find_all('a')
+@dataclass
+class Email: 
+    def harvester(url): 
+        url = requests.get(url)
+        soup = BeautifulSoup(url.content, 'html.parser')
+        soup = soup.find_all('a')
     return soup
 
 def main():
