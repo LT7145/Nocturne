@@ -4,6 +4,7 @@ import sys
 from modules import web_enumerator
 from modules import art
 from modules import CVE
+from modules import harvester
 
 VERSION = "1.1"
 
@@ -23,6 +24,7 @@ MODULES = {
     "web": ("web enumeration (subdomains / directories)", web_enumerator.main),
     "art": ("print the nocturne mascot", art.main),
     "CVE": ("Scan CVE for vulnerabilities", CVE.main),
+    "Harvester": ("Harvest urls \t\t\t", harvester.main),
 }
 
 
