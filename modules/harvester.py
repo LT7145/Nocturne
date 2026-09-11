@@ -1,30 +1,29 @@
-import email
-import requests
-import sys
+#!/usr/bin/env python3
+
 import argparse
-from bs4 import BeautifulSoup
+import re
+import sys
+from urllib.parse import urljoin
 
-def harvest_links(url): 
-    url = requests.get(url)
-    soup = BeautifulSoup(url.content, 'html.parser')
-    soup = soup.find_all('a')
-    return soup
+from scrapling import Selector  # or from scrapling.parser import Selector
+from scrapling.fetchers import Fetcher, AsyncFetcher, DynamicFetcher, StealthyFetcher
 
-def harvest_email(url):
-    url = requests.get(url)
-    email = BeautifulSoup(url.content, 'html.parser')
-    email_pattern = r"[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}"
-    output = soup.find_all(string=re.compile(email_pattern))
-    return output
 
-def main(argv=None):
-    parser = argparse.ArgumentParser(description="Harvests links from a given URL.")
-    parser.add_argument("url", help="The URL to harvest links from.")
-    args = parser.parse_args()
-    links = harvester(args.url)
-    args = parser.parse_args()
-    for link in links:
-        print(link.get('href'))
+def extract_email(url: str) -> list: 
+    url_fetch = StealthyFetcher.fetch(url, real_chrome=True)
+    email = re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}')
+    if page_status != 200: 
+        return []
+    obtained = email.finall(page.body)
+    return sorted({e.lower() for e in found})
+
+def enumerate_emails(url: ) 
+
+
+def main(argv=None): 
+    parser = argparse.ArgumentParser(prog='Web Scraper', description='Input the URL and selec    t the flag to begin') 
+    parser.add_argument("url", help="url/domain e.g https://example.com")
+    parser.add_arguemnt("-e", "--email")    
 
 if __name__ == "__main__":
-    sys.exit(main())
+    main() 
