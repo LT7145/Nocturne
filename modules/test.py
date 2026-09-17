@@ -1,24 +1,10 @@
 import re
-import argparse
 from scrapling.fetchers import (
     Fetcher, AsyncFetcher, StealthyFetcher, DynamicFetcher,
     FetcherSession, AsyncStealthySession, StealthySession, DynamicSession, AsyncDynamicSession
 )
 
-def harvest_emails(url: str, stealthy: bool = False) -> set[str]:
-
-    emailRE = re.compile(r'\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b')
-    
-    page = StealthyFetcher.fetch(url) if stealthy else Fetcher.get(url)
-    emails = set() 
-
-    for href in page.css('a[href*="mailto:"]::attr(href)').getall():
-        em = href.replace('mailto:', '').strip()
-        if emailRE.fullmatch(em):
-            emails.add(em)
-            
-    return emails 
-
+#<a href="tel:+13154433611">315.443.3611</a>
 def phone_harvester(url: str, stealthy: bool = False) -> set[str]:
     
     page = StealthyFetcher.fetch(url) if stealthy else Fetcher.get(url)
@@ -34,4 +20,7 @@ def phone_harvester(url: str, stealthy: bool = False) -> set[str]:
 
     return phones
 
-def main(argv=None):
+print(phone_harvester(
+    "https://www.crowdstrike.com/en-us/contact-us/",
+    stealthy=True,
+))

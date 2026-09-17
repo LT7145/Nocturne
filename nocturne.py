@@ -24,7 +24,7 @@ MODULES = {
     "web": ("web enumeration (subdomains / directories)", web_enumerator.main),
     "art": ("print the nocturne mascot", art.main),
     "CVE": ("Scan CVE for vulnerabilities", CVE.main),
-    "Harvester": ("Harvest urls \t\t\t", harvester.main),
+    "harvester": ("Harvest urls", harvester.main),
 }
 
 
