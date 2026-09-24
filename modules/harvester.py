@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 #!/usr/bin/env python3
 
 import argparse
@@ -8,22 +9,42 @@ from urllib.parse import urljoin
 from scrapling import Selector  # or from scrapling.parser import Selector
 from scrapling.fetchers import Fetcher, AsyncFetcher, DynamicFetcher, StealthyFetcher
 
+=======
+import re
+import argparse
+from scrapling.fetchers import (
+    Fetcher, AsyncFetcher, StealthyFetcher, DynamicFetcher,
+    FetcherSession, AsyncStealthySession, StealthySession, DynamicSession, AsyncDynamicSession
+)
 
-def extract_email(url: str) -> list: 
-    url_fetch = StealthyFetcher.fetch(url, real_chrome=True)
-    email = re.compile(r'[a-zA-Z0-9._%+-]+@[a-zA-Z0-9-]+(?:\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,}')
-    if page_status != 200: 
-        return []
-    obtained = email.finall(page.body)
-    return sorted({e.lower() for e in found})
+def harvest_emails(url: str, stealthy: bool = False) -> set[str]:
 
-def enumerate_emails(url: ) 
+    emailRE = re.compile(r'\b[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}\b')
+    
+    page = StealthyFetcher.fetch(url) if stealthy else Fetcher.get(url)
+    emails = set() 
 
+    for href in page.css('a[href*="mailto:"]::attr(href)').getall():
+        em = href.replace('mailto:', '').strip()
+        if emailRE.fullmatch(em):
+            emails.add(em)
+            
+    return emails 
 
-def main(argv=None): 
-    parser = argparse.ArgumentParser(prog='Web Scraper', description='Input the URL and selec    t the flag to begin') 
-    parser.add_argument("url", help="url/domain e.g https://example.com")
-    parser.add_arguemnt("-e", "--email")    
+def phone_harvester(url: str, stealthy: bool = False) -> set[str]:
+    
+    page = StealthyFetcher.fetch(url) if stealthy else Fetcher.get(url)
+    REGEX = re.compile(r"\D") 
 
-if __name__ == "__main__":
-    main() 
+    phones = set()
+
+    for href in page.css('a[href*="tel:"]::attr(href)'):
+        result = str(href).replace("tel:","Phone Number: ").strip()
+        digits = REGEX.sub("", result)
+        if 7 <= len(digits) <= 15:
+            phones.add(result)
+
+    return phones
+
+def main(argv=None):
+>>>>>>> d6b6adb5986a34cd4de97280b225efa18c4dfbd2
