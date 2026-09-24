@@ -1,3 +1,15 @@
+<<<<<<< HEAD
+#!/usr/bin/env python3
+
+import argparse
+import re
+import sys
+from urllib.parse import urljoin
+
+from scrapling import Selector  # or from scrapling.parser import Selector
+from scrapling.fetchers import Fetcher, AsyncFetcher, DynamicFetcher, StealthyFetcher
+
+=======
 import re
 import argparse
 from scrapling.fetchers import (
@@ -35,3 +47,4 @@ def phone_harvester(url: str, stealthy: bool = False) -> set[str]:
     return phones
 
 def main(argv=None):
+>>>>>>> d6b6adb5986a34cd4de97280b225efa18c4dfbd2
