@@ -1,3 +1,4 @@
+import os 
 import re
 import argparse
 from scrapling.fetchers import (
@@ -35,3 +36,10 @@ def phone_harvester(url: str, stealthy: bool = False) -> set[str]:
     return phones
 
 def main(argv=None):
+    parse = argparse.ArgumentParser(prog="Nocturne Harvester",
+                                    desc="")
+    parse.add_argument('-e', '--emails', help="Harvest emails") 
+    parse.add_argument('-p', '--phones', help="Harvest phone numbers")
+
+if __name__ == "__main__":
+    sys.exit(main())
