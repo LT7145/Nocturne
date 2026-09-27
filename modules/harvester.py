@@ -1,15 +1,4 @@
-<<<<<<< HEAD
-#!/usr/bin/env python3
-
-import argparse
-import re
-import sys
-from urllib.parse import urljoin
-
-from scrapling import Selector  # or from scrapling.parser import Selector
-from scrapling.fetchers import Fetcher, AsyncFetcher, DynamicFetcher, StealthyFetcher
-
-=======
+import os 
 import re
 import argparse
 from scrapling.fetchers import (
@@ -47,4 +36,10 @@ def phone_harvester(url: str, stealthy: bool = False) -> set[str]:
     return phones
 
 def main(argv=None):
->>>>>>> d6b6adb5986a34cd4de97280b225efa18c4dfbd2
+    parse = argparse.ArgumentParser(prog="Nocturne Harvester",
+                                    desc="")
+    parse.add_argument('-e', '--emails', help="Harvest emails") 
+    parse.add_argument('-p', '--phones', help="Harvest phone numbers")
+
+if __name__ == "__main__":
+    sys.exit(main())

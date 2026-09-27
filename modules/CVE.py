@@ -114,6 +114,7 @@ class ExploitIntel:
             "github":      f"https://github.com/search?q={q}&type=repositories",
             "nuclei":      f"https://github.com/search?q={q}+path%3A*.yaml&type=code",
             "rapid7":      f"https://www.rapid7.com/db/?q={q}",
+            "github_code":    f"https://github.com/search?q={q}&type=code",
         }
 
     @classmethod
