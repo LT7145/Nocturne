@@ -115,7 +115,7 @@ def enumerate_dirs(target, wordlist, scheme="https", threads=10, timeout=3, veri
     print(f"[*] Mode: directory enumeration - target: {base}\n", file=sys.stderr)
     session = b_session(threads, verify, user_agent)
     fn = partial(checking_paths, session=session, base=base, timeout=timeout, verbose=verbose)
-    return run_scan(fn, wordlist, threads, codes, verbose)
+ return run_scan(fn, wordlist, threads, codes, verbose)
 
 
 def parse_codes(raw):
